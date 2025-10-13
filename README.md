@@ -19,9 +19,10 @@
 ## 🚨 Disclaimer
 
 > **WARNING:**  
-> This software is provided for educational purposes only. Automating or modifying Discord may violate Discord’s Terms of Service and could lead to suspension or banning of accounts.  
+> This software is provided for educational purposes only. 
+> Automating or modifying Discord may violate Discord’s Terms of Service and could lead to suspension or banning of accounts.  
 > Modifying `app.asar` can damage your Discord installation or cause instability.  
-> Use at your own risk. The author(s) claim no liability for any outcome.
+> Use at your own risk. I claim no liability for any outcome.
 
 ***
 
