@@ -1,7 +1,7 @@
 # Discord Quest Bot - JavaScript Functions Explained
 
 # How to use:
-- 1.Copy to .js script.
+- 1.Copy the .js script.
 - 2.Open DiscordPTB and press ctr+shift+i.
 - 3.Go to console and type allow pasting.
 - 4.Paste the code on the console and Accept the quests.
