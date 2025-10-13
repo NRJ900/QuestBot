@@ -2,9 +2,11 @@
 
 # How to use:
 - 1.Copy the .js script.
-- 2.Open DiscordPTB and press ctr+shift+i.
-- 3.Go to console and type allow pasting.
-- 4.Paste the code on the console and Accept the quests.
+- 2.Open DiscordPTB or Discord.
+- 3.Enable developer mode under "Advanced" in settings.
+- 4.Press ctr+shift+i.
+- 5.Go to console and type allow pasting.
+- 6.Paste the code on the console and Accept the quests.
 
 ## 🎯 Complete JavaScript Breakdown
 
