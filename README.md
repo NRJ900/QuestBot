@@ -117,6 +117,4 @@ Licensed under the [MIT License](LICENSE).
 
 ***
 
-You can copy and paste this into your README.md file. It covers features, installation, system requirements, disclaimer, usage instructions, license, and credits—giving your repo a clear, professional landing page for users and collaborators.
-
-[1](https://github.com/NRJ900/QuestBot/edit/main/README.md)
+[Github Profile](https://github.com/NRJ900)
