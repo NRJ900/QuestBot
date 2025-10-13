@@ -1,19 +1,10 @@
-const {BrowserWindow} = require('electron');
-const {app} = require('electron');
-
-function injectQuestBot(window) {
-    if (!window || !window.webContents || window.isDestroyed() || window.webContents.isDestroyed()) {
-        return;
-    }
-    
-    try {
-        const questScript = `
 (function() {
     console.log('[QUEST BOT] Starting continuous quest automation...');
     
     let initAttempts = 0;
     const maxAttempts = 120;
     let activeQuestId = null;
+    let checkInterval = null;
     
     function tryInit() {
         initAttempts++;
@@ -60,6 +51,7 @@ function injectQuestBot(window) {
     
     function startContinuousQuestBot(R, Q, F, A) {
         console.log('[QUEST BOT] 🔄 Continuous quest mode enabled');
+        console.log('[QUEST BOT] Will check for new quests every 1 minute after completion');
         
         function checkForQuests() {
             try {
@@ -70,20 +62,24 @@ function injectQuestBot(window) {
                 );
                 
                 if (!q) {
-                    console.log('[QUEST BOT] ⏳ No active quest. Checking in 1 minute...');
-                    setTimeout(checkForQuests, 60000);
+                    console.log('[QUEST BOT] ⏳ No active quest found. Checking again in 1 minute...');
+                    setTimeout(checkForQuests, 60000); // 1 minutes
                     return;
                 }
                 
+                // If it's a new quest (different from active one)
                 if (activeQuestId !== q.id) {
                     activeQuestId = q.id;
-                    console.log('[QUEST BOT] ✅ NEW QUEST:', q.config.messages.questName);
+                    console.log('[QUEST BOT] ✅ NEW QUEST FOUND:', q.config.messages.questName);
+                    console.log('[QUEST BOT] Quest ID:', q.id);
                     startQuest(q, R, Q, F, A);
                 } else {
+                    // Same quest still running, check again in 30 seconds
                     setTimeout(checkForQuests, 30000);
                 }
                 
             } catch (e) {
+                console.error('[QUEST BOT] Error checking quests:', e);
                 setTimeout(checkForQuests, 120000);
             }
         }
@@ -96,10 +92,14 @@ function injectQuestBot(window) {
             var need = taskConfig.tasks[taskName].target;
             
             if (taskName !== 'PLAY_ON_DESKTOP') {
+                console.log('[QUEST BOT] ⚠️ Quest type', taskName, 'not supported. Checking for next quest in 2 minutes...');
                 activeQuestId = null;
                 setTimeout(checkForQuests, 120000);
                 return;
             }
+            
+            console.log('[QUEST BOT] 🎮 Task: PLAY_ON_DESKTOP');
+            console.log('[QUEST BOT] ⏱️ Duration needed:', need, 'seconds (~' + Math.ceil(need/60) + ' minutes)');
             
             A.get({url: '/applications/public?application_ids=' + id}).then(r => {
                 var a = r.body[0];
@@ -134,66 +134,41 @@ function injectQuestBot(window) {
                         var percent = Math.round(pr / need * 100);
                         var timeLeft = Math.ceil((need - pr) / 60);
                         
-                        console.log('[QUEST BOT] 📊 PROGRESS:', pr + '/' + need, '(' + percent + '%) ~' + timeLeft + ' min');
+                        console.log('[QUEST BOT] 📊 PROGRESS:', pr + '/' + need, '(' + percent + '%) ~' + timeLeft + ' min left');
                         
                         if (pr >= need) {
                             console.log('[QUEST BOT] 🎉🎉🎉 QUEST COMPLETE! 🎉🎉🎉');
+                            console.log('[QUEST BOT] Quest:', q.config.messages.questName);
                             
+                            // Clean up
                             R.getRunningGames = o1;
                             R.getGameForPID = o2;
                             F.dispatch({type: 'RUNNING_GAMES_CHANGE', removed: [g], added: [], games: []});
                             F.unsubscribe('QUESTS_SEND_HEARTBEAT_SUCCESS', progressHandler);
                             
+                            // Reset active quest and check for new one in 1 minute
                             activeQuestId = null;
-                            console.log('[QUEST BOT] 🔄 Checking in 1 minute...');
-                            setTimeout(checkForQuests, 60000);
+                            console.log('[QUEST BOT] 🔄 Checking for new quests in 1 minute...');
+                            setTimeout(checkForQuests, 60000); // 1 minute
                         }
-                    } catch (err) {}
+                    } catch (err) {
+                        console.error('[QUEST BOT] Progress handler error:', err);
+                    }
                 };
                 
                 F.subscribe('QUESTS_SEND_HEARTBEAT_SUCCESS', progressHandler);
-                console.log('[QUEST BOT] ✅ Bot active!');
+                console.log('[QUEST BOT] ✅ Bot active! Monitoring progress...');
                 
             }).catch(err => {
+                console.error('[QUEST BOT] API ERROR:', err);
                 activeQuestId = null;
                 setTimeout(checkForQuests, 120000);
             });
         }
         
+        // Start checking for quests immediately
         checkForQuests();
     }
     
     tryInit();
 })();
-        `;
-        
-        window.webContents.executeJavaScript(questScript).catch(() => {});
-        
-    } catch (err) {}
-}
-
-app.on('browser-window-created', (event, window) => {
-    window.webContents.on('dom-ready', () => {
-        setTimeout(() => {
-            if (!window.isDestroyed()) {
-                injectQuestBot(window);
-            }
-        }, 3000);
-    });
-    
-    window.webContents.on('did-navigate', () => {
-        setTimeout(() => {
-            if (!window.isDestroyed()) {
-                injectQuestBot(window);
-            }
-        }, 2000);
-    });
-    
-    window.webContents.on('did-navigate-in-page', () => {
-        setTimeout(() => {
-            if (!window.isDestroyed()) {
-                injectQuestBot(window);
-            }
-        }, 2000);
-    });
-});
