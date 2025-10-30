@@ -6,16 +6,6 @@
 
 ***
 
-## ⚡ Features
-
-- Intuitive GUI (Tkinter-based)
-- One-click extraction/repacking of Discord’s `app.asar`
-- Automated process management (using psutil)
-- Node.js + asar integration for backend file manipulation
-- Complete Windows installer with automatic dependency setup
-
-***
-
 ## 🚨 Disclaimer
 
 > **WARNING:**  
