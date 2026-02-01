@@ -1,3 +1,4 @@
+//Recent discord update might have broken how the CSP handles the request, try the """"Unified_Quest.js"""" if quest not getting progressed or not detected.
 (function() {
     console.log('[QUEST BOT] Starting continuous quest automation...');
     
